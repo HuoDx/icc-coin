@@ -28,7 +28,7 @@ def network_peers():
         return '???', 401
     discovery_queue = [p for p in request.json.get('peers', [visitor_ip])]
     if visitor_ip not in discovery_queue:
-        discovery_queue.append(visitor_ip)
+        discovery_queue.append(vi)
     print(visitor_ip)
     while len(discovery_queue) > 0:
         new_peer = discovery_queue.pop()
@@ -104,7 +104,7 @@ def index():
 from requests.exceptions import ConnectionError
 if __name__ == '__main__':
     try:
-        r = requests.get('http://%s:%s/network-discovery/'%(input('Network Discovery Server IP: '), input('Network Discovery Server Port: ')), json={
+        r = requests.get('http://%s:%s/network-discovery'%(input('Network Discovery Server IP: '), input('Network Discovery Server Port: ')), json={
             
         })
         print('Request done (%d)'%r.status_code) 
