@@ -27,6 +27,8 @@ def network_peers():
     if request.json is None:
         return '???', 401
     discovery_queue = [p for p in request.json.get('peers', [visitor_ip])]
+    if visitor_ip not in discovery_queue:
+        discovery_queue.append(visitor_ip)
     print(visitor_ip)
     while len(discovery_queue) > 0:
         new_peer = discovery_queue.pop()
