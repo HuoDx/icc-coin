@@ -54,9 +54,12 @@ def network_peers():
 def broadcast_message(message, uid):
     succeed = 0
     for p in peers:
-        r = requests.post(contruct_url(p, '/message'), json={'message': message, 'uid': uid})
-        if r.status_code == 200:
-            succeed += 1
+        try:
+            r = requests.post(contruct_url(p, '/message'), json={'message': message, 'uid': uid})
+            if r.status_code == 200:
+                succeed += 1
+        except ConnectionError:
+            pass
     return 0 if len(peers) == 0 else succeed * 1.0 / len(peers)
 
 import time
@@ -130,7 +133,8 @@ if __name__ == '__main__':
     import webbrowser
     webbrowser.open('http://%s:%s/'%(local_ip, PORT), new=2)
     import waitress
-    waitress.serve(server, port = PORT)
+    server.run(host='0.0.0.0', port = PORT)
+    # waitress.serve(server, port = PORT)
 
 
 
