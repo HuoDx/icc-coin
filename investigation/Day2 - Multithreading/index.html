@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        html,
+        body {
+            height: 100vh;
+        }
+        
+        .content {
+            width: 80vw;
+            height: 70vh;
+            padding: 36px;
+            border: black 1px solid;
+        }
+        
+        .actions {
+            margin-top: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>P2P Chat</h1>
+    <div>
+        <div class="content" id="content-panel"></div>
+        <div class="actions">
+            <input placeholder="MESSAGE" type="text" id="user-input" />
+            <button id="send-button">SEND</button>
+        </div>
+    </div>
+    <script>
+        var $ = function(value) {
+            return document.querySelector(value);
+        };
+        var abort = false;
+        var messageList = [];
+
+        function updateContentList() {
+            $('#content-panel').innerText = messageList.join('\n');
+        }
+        async function postData(url, form) {
+            console.log(form)
+            let result = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                        // 'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                redirect: 'follow', // manual, *follow, error
+                referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                body: JSON.stringify(form)
+            })
+            return result;
+        }
+
+        var sendMessage = async function(e) {
+            console.debug(e)
+            let message = $('#user-input').value
+            postData('/message', {
+                message
+            })
+        }
+        $('#send-button').addEventListener('click', sendMessage)
+        $('#user-input').addEventListener('keyup', async function(e) {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                // Do something
+                await sendMessage()
+            }
+        })
+
+        ;
+        (async() => {
+            while (!abort) {
+                console.debug('Fetch starts.')
+                let response = await fetch('/api/poll')
+                if (response.status == 200) {
+                    let jsonResponse = await response.json()
+                    console.debug(jsonResponse)
+                    if (jsonResponse.status == 0) { // new messages
+                        messageList = jsonResponse.result
+                        updateContentList()
+                    }
+                }
+
+            }
+        })()
+    </script>
+</body>
+
+</html>
