@@ -5,11 +5,15 @@ import requests
 from data import peers, local_ip, messages, message_hash_list
 
 import socket
-hostname = socket.gethostname()
-local_ip = socket.gethostbyname(hostname)
+try:
+    hostname = socket.gethostname()
+    local_ip = socket.gethostbyname(hostname)
 
-print('Local IP: %s'%local_ip)
-
+    print('Local IP: %s'%local_ip)
+except Exception:
+    print('Cannot obtain local IP...')
+    print('Nevermind!')
+    
 server = Flask(__name__)
 PORT = 10001
 def contruct_url(peer, route):
@@ -50,7 +54,7 @@ def network_peers():
 def broadcast_message(message, uid):
     succeed = 0
     for p in peers:
-        r = request.post(contruct_url(p, '/message'), json={'message': message, 'uid': uid})
+        r = requests.post(contruct_url(p, '/message'), json={'message': message, 'uid': uid})
         if r.status_code == 200:
             succeed += 1
     return 0 if len(peers) == 0 else succeed * 1.0 / len(peers)
